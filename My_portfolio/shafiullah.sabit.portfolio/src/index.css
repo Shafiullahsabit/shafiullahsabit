@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+.home-content {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+.home-description {
+  text-align: justify;
+  text-justify: inter-word;
+}
