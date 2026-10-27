@@ -38,10 +38,10 @@ inbox.
 7. Vercel Web Analytics is used to track public portfolio page views. Enable
    it for the Vercel project and include the `<Analytics />` component from
    `@vercel/analytics/react` in the public app. View reports in the project's
-   Analytics tab in Vercel. The admin dashboard's optional 30-day chart uses
-   Plausible separately; to enable it, create a Plausible site and a read-only
-   Stats API key, then set `VITE_PLAUSIBLE_DOMAIN`, `PLAUSIBLE_DOMAIN`, and
-   `PLAUSIBLE_API_KEY` as described in the Vercel deployment section.
+   Analytics tab in Vercel. The admin dashboard's 30-day chart also reads
+   Vercel Web Analytics and requires a Vercel API token scoped to this project.
+   Add it as the sensitive `VERCEL_ANALYTICS_API_TOKEN` environment variable
+   in Vercel; never expose it through a `VITE_` variable.
 
 The previous hard-coded frontend admin password is no longer used. Create or
 reset the administrator password in Supabase Auth.
@@ -71,11 +71,12 @@ SPA fallback configured before deploying there.
    environments you deploy. Use the project's publishable key for both key
    variables. Do not add a secret key: public contact submissions use the
    anonymous RLS policy, not admin access.
-3. Enable Web Analytics for the Vercel project to track public page views;
-   view its reports in the Vercel project's Analytics tab. The admin
-   dashboard's optional Plausible chart is separate and requires
-   `VITE_PLAUSIBLE_DOMAIN`, `PLAUSIBLE_DOMAIN`, and a read-only
-   `PLAUSIBLE_API_KEY` as described in Local setup.
+3. Enable Web Analytics for the Vercel project to track public page views.
+   To show the admin dashboard chart, create a project-scoped Vercel API token
+   with access to read project analytics and add it as the sensitive
+   `VERCEL_ANALYTICS_API_TOKEN` environment variable for Production. Never
+   expose this token through a `VITE_` variable. The chart queries the Vercel
+   Web Analytics API only after verifying the signed-in Supabase administrator.
 4. Deploy or redeploy so Vite can include the `VITE_*` variables in the client
    build and Vercel can configure the server endpoints.
 5. In Supabase **Authentication → URL Configuration**, set the production

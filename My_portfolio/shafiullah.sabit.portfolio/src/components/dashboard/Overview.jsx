@@ -34,7 +34,7 @@ const Overview = ({ onNavigate }) => {
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [messageError, setMessageError] = useState("");
   const [analytics, setAnalytics] = useState({
-    status: import.meta.env.VITE_PLAUSIBLE_DOMAIN ? "loading" : "unconfigured",
+    status: "loading",
     pageViews: null,
     points: [],
     error: "",
@@ -89,16 +89,6 @@ const Overview = ({ onNavigate }) => {
   }, []);
 
   const loadAnalytics = useCallback(async () => {
-    if (!import.meta.env.VITE_PLAUSIBLE_DOMAIN) {
-      setAnalytics({
-        status: "unconfigured",
-        pageViews: null,
-        points: [],
-        error: "",
-      });
-      return;
-    }
-
     setAnalytics((current) => ({ ...current, status: "loading", error: "" }));
     try {
       const {
@@ -134,7 +124,7 @@ const Overview = ({ onNavigate }) => {
         error: "",
       });
     } catch (error) {
-      console.error("Unable to load Plausible analytics:", error);
+      console.error("Unable to load Vercel analytics:", error);
       setAnalytics({
         status: "error",
         pageViews: null,
@@ -234,7 +224,7 @@ const Overview = ({ onNavigate }) => {
               ? numberFormatter.format(analytics.pageViews)
               : "—"
           }
-          description="Last 30 days · Plausible Analytics"
+          description="Last 30 days · Vercel Analytics"
           icon={FaEye}
           isLoading={analytics.status === "loading"}
         />
@@ -276,9 +266,9 @@ const Overview = ({ onNavigate }) => {
             <div className="mt-6 h-56 animate-pulse rounded-xl bg-white/5" />
           ) : analytics.status === "unconfigured" ? (
             <div className="mt-6 rounded-xl border border-amber-300/20 bg-amber-300/5 p-4 text-sm leading-relaxed text-amber-100/80">
-              This chart uses optional Plausible reporting, which is not
-              configured. Vercel Web Analytics tracks the public portfolio;
-              view its reports in the project’s Analytics tab on Vercel.
+              Add a project-scoped Vercel API token as the sensitive
+              <code className="mx-1">VERCEL_ANALYTICS_API_TOKEN</code>
+              environment variable in Vercel, then redeploy to load this chart.
             </div>
           ) : analytics.status === "error" ? (
             <div
@@ -296,8 +286,7 @@ const Overview = ({ onNavigate }) => {
             </div>
           ) : analytics.points.length === 0 ? (
             <p className="mt-6 rounded-xl border border-white/10 bg-black/20 p-6 text-center text-sm text-white/55">
-              Plausible is connected, but no page-view data is available for
-              this period yet.
+              No Vercel page-view data is available for this period yet.
             </p>
           ) : (
             <div className="mt-6">

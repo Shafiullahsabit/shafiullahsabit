@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import Particles from "./components/Particles.jsx";
@@ -16,19 +15,6 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MouseEffect from "./components/MouseEffect.jsx";
 
 function Portfolio() {
-  useEffect(() => {
-    const domain = import.meta.env.VITE_PLAUSIBLE_DOMAIN;
-    if (!domain) return undefined;
-
-    const script = document.createElement("script");
-    script.defer = true;
-    script.src = "https://plausible.io/js/script.js";
-    script.dataset.domain = domain;
-    document.head.appendChild(script);
-
-    return () => script.remove();
-  }, []);
-
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden">
       <div className="pointer-events-none fixed inset-0 z-0">
