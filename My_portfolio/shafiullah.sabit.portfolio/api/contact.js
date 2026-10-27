@@ -1,12 +1,18 @@
-import {
-  createContextClient,
-  verifyAuth,
-} from "@supabase/server/core";
+import { createClient } from "@supabase/supabase-js";
 import { getContactMessageError } from "../src/lib/contactMessageErrors.js";
 
 const serverEnv = globalThis.process?.env ?? {};
 const isValidEmail = (email) =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
+
+const getSupabaseConfig = () => ({
+  url: serverEnv.SUPABASE_URL || serverEnv.VITE_SUPABASE_URL,
+  key:
+    serverEnv.SUPABASE_PUBLISHABLE_KEY ||
+    serverEnv.SUPABASE_ANON_KEY ||
+    serverEnv.VITE_SUPABASE_ANON_KEY ||
+    serverEnv.VITE_SUPABASE_PUBLISHABLE_KEY,
+});
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -24,37 +30,11 @@ export default async function handler(req, res) {
     return res.status(415).json({ message: "Expected a JSON request." });
   }
 
-  if (!serverEnv.SUPABASE_URL || !serverEnv.SUPABASE_PUBLISHABLE_KEY) {
+  const { url, key } = getSupabaseConfig();
+  if (!url || !key) {
     return res
       .status(503)
       .json({ message: "The contact form is not configured yet." });
-  }
-
-  const headers = new Headers();
-  const publishableKey = req.headers.apikey;
-  if (typeof publishableKey === "string") {
-    headers.set("apikey", publishableKey);
-  }
-
-  let auth;
-  let authError;
-  try {
-    ({ data: auth, error: authError } = await verifyAuth(
-      new Request("https://localhost/api/contact", {
-        method: "POST",
-        headers,
-      }),
-      { auth: "publishable" },
-    ));
-  } catch (error) {
-    console.error("Unable to verify contact endpoint key:", error);
-    return res
-      .status(500)
-      .json({ message: "The contact form could not be verified." });
-  }
-
-  if (authError) {
-    return res.status(authError.status).json({ message: "Invalid API key." });
   }
 
   const body = req.body;
@@ -89,7 +69,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const supabase = createContextClient({ auth: { keyName: auth.keyName } });
+    const supabase = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
     const { error } = await supabase.from("contact_messages").insert({
       first_name: firstName,
       last_name: lastName,

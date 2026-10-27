@@ -8,8 +8,60 @@ import {
   FaWhatsapp,
   FaLinkedin,
 } from "react-icons/fa";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 import { getContactMessageError } from "../lib/contactMessageErrors";
+
+const NOT_CONNECTED_MESSAGE =
+  "The contact form is not connected yet. Please email me at shafiullahsabit@gmail.com.";
+
+const isJsonResponse = (response) =>
+  (response.headers.get("content-type") || "").includes("application/json");
+
+const insertContactMessage = async (message) => {
+  if (!supabase) {
+    const error = new Error(NOT_CONNECTED_MESSAGE);
+    error.code = "NOT_CONNECTED";
+    throw error;
+  }
+
+  const { error } = await supabase.from("contact_messages").insert(message);
+  if (error) throw error;
+};
+
+const sendContactMessage = async (message) => {
+  if (import.meta.env.DEV) {
+    await insertContactMessage(message);
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    });
+
+    if (isJsonResponse(response)) {
+      if (response.ok) return;
+
+      const result = await response.json();
+      const error = new Error(result.message || "Unable to send your message.");
+      error.code = result.code;
+      throw error;
+    }
+  } catch (error) {
+    if (error.code === "NOT_CONNECTED") throw error;
+    if (supabase) {
+      await insertContactMessage(message);
+      return;
+    }
+    throw error;
+  }
+
+  await insertContactMessage(message);
+};
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -36,15 +88,6 @@ const Contact = () => {
       return;
     }
 
-    if (!isSupabaseConfigured || !supabase) {
-      setFeedback({
-        type: "error",
-        message:
-          "The contact form is not connected yet. Please email me at shafiullahsabit@gmail.com.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const message = {
@@ -55,26 +98,7 @@ const Contact = () => {
         message: formData.message.trim(),
       };
 
-      if (import.meta.env.DEV) {
-        const { error } = await supabase.from("contact_messages").insert(message);
-        if (error) throw error;
-      } else {
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify(message),
-        });
-
-        if (!response.ok) {
-          const result = await response.json();
-          const error = new Error(result.message || "Unable to send your message.");
-          error.code = result.code;
-          throw error;
-        }
-      }
+      await sendContactMessage(message);
 
       setFormData({
         firstName: "",
@@ -88,7 +112,10 @@ const Contact = () => {
       console.error("Unable to submit contact message:", error);
       setFeedback({
         type: "error",
-        message: `${getContactMessageError(error, "Your message could not be sent right now.")} Please try again or contact me by email.`,
+        message:
+          error.code === "NOT_CONNECTED"
+            ? NOT_CONNECTED_MESSAGE
+            : `${getContactMessageError(error, "Your message could not be sent right now.")} Please try again or contact me by email.`,
       });
     } finally {
       setIsSubmitting(false);
