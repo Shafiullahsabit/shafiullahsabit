@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion as Motion } from "framer-motion";
 import {
   FaLaptopCode,
@@ -10,7 +10,14 @@ import {
   FaRocket,
   FaCode,
   FaGlobe,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
+import { Autoplay, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const services = [
   {
@@ -66,21 +73,25 @@ const col3 = services.filter((_, i) => i % 3 === 2);
 
 const loop = (arr) => [...arr, ...arr];
 
-const ServiceCard = ({ item }) => {
+const ServiceCard = ({ item, slideIndex }) => {
   return (
     <Motion.div
       whileHover={{ y: -6, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="
-        group relative overflow-hidden
-        rounded-2xl p-5 sm:p-6
-        border border-white/10
-        bg-white/4 backdrop-blur-xl
-        shadow-[0_0_40px_rgba(0,255,255,0.06)]
-        hover:shadow-[0_0_70px_rgba(0,255,255,0.10)]
-        transition-all duration-300
-      "
+      className={
+        Number.isInteger(slideIndex)
+          ? "group relative h-full min-h-64 overflow-hidden rounded-2xl border border-white/10 bg-white/4 p-5 shadow-[0_0_40px_rgba(0,255,255,0.06)] backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_70px_rgba(0,255,255,0.10)] sm:rounded-3xl sm:p-6"
+          : "group relative overflow-hidden rounded-2xl border border-white/10 bg-white/4 p-5 shadow-[0_0_40px_rgba(0,255,255,0.06)] backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_70px_rgba(0,255,255,0.10)] sm:p-6"
+      }
     >
+      {Number.isInteger(slideIndex) && (
+        <div className="relative z-10 mb-5 flex items-center justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200/60">
+            Service {String(slideIndex + 1).padStart(2, "0")}
+          </span>
+          <span className="h-px w-12 bg-gradient-to-r from-cyan-400/70 to-transparent" />
+        </div>
+      )}
       <div
         className="
           pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100
@@ -100,16 +111,11 @@ const ServiceCard = ({ item }) => {
       />
 
       <div
-        className="
-          relative z-10
-          h-12 w-12 rounded-2xl flex items-center justify-center
-          border border-white/10
-          bg-white/6
-          text-cyan-400 text-xl
-          shadow-[0_0_25px_rgba(34,211,238,0.25)]
-          group-hover:shadow-[0_0_40px_rgba(34,211,238,0.10)]
-          transition-all duration-300
-        "
+        className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl border text-xl transition-all duration-300 ${
+          Number.isInteger(slideIndex)
+            ? "border-cyan-300/15 bg-cyan-400/10 text-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.15)] group-hover:shadow-[0_0_40px_rgba(34,211,238,0.10)]"
+            : "border-white/10 bg-white/6 text-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.25)] group-hover:shadow-[0_0_40px_rgba(34,211,238,0.10)]"
+        }`}
       >
         {item.icon}
       </div>
@@ -128,7 +134,41 @@ const ServiceCard = ({ item }) => {
 };
 
 const ServicesSlider = () => {
+  const mobileCarouselRef = useRef(null);
+  const [mobileSwiper, setMobileSwiper] = useState(null);
+  const [activeService, setActiveService] = useState(0);
   const speed = 18;
+
+  useEffect(() => {
+    if (!mobileSwiper || !mobileCarouselRef.current) return undefined;
+
+    let animationFrame;
+    let resizeTimeout;
+    const updateCarousel = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        if (!mobileSwiper.destroyed) mobileSwiper.update();
+      });
+      window.clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        if (!mobileSwiper.destroyed) mobileSwiper.update();
+      }, 100);
+    };
+
+    const resizeObserver = new ResizeObserver(updateCarousel);
+    resizeObserver.observe(mobileCarouselRef.current);
+    window.addEventListener("resize", updateCarousel, { passive: true });
+    window.addEventListener("orientationchange", updateCarousel);
+    updateCarousel();
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.clearTimeout(resizeTimeout);
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateCarousel);
+      window.removeEventListener("orientationchange", updateCarousel);
+    };
+  }, [mobileSwiper]);
 
   const upAnimation = {
     y: ["0%", "-50%"],
@@ -170,10 +210,71 @@ const ServicesSlider = () => {
         </p>
       </Motion.div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
-        {services.map((item) => (
-          <ServiceCard key={item.title} item={item} />
-        ))}
+      <div className="lg:hidden">
+        <div
+          ref={mobileCarouselRef}
+          className="min-w-0 overflow-hidden rounded-3xl border border-cyan-300/10 bg-gradient-to-br from-cyan-950/35 via-slate-950/90 to-indigo-950/30 p-3 shadow-[0_16px_55px_rgba(0,0,0,0.3)] sm:p-5"
+        >
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          onSwiper={setMobileSwiper}
+          onResize={(swiper) => requestAnimationFrame(() => swiper.update())}
+          onBreakpoint={(swiper) => requestAnimationFrame(() => swiper.update())}
+          onSlideChange={(swiper) => setActiveService(swiper.realIndex)}
+          loop
+          speed={600}
+          spaceBetween={12}
+          slidesPerView={1}
+          autoplay={{
+            delay: 4500,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          }}
+          pagination={{ clickable: true, type: "progressbar" }}
+          breakpoints={{
+            480: { slidesPerView: 1.15, spaceBetween: 14 },
+            640: { slidesPerView: 2, spaceBetween: 18 },
+            900: { slidesPerView: 2.4, spaceBetween: 20 },
+          }}
+          className="services-carousel !w-full !min-w-0 !overflow-visible !pb-8
+            [&_.swiper-pagination-progressbar]:!bottom-0 [&_.swiper-pagination-progressbar]:!top-auto
+            [&_.swiper-pagination-progressbar]:!h-1 [&_.swiper-pagination-progressbar]:!rounded-full
+            [&_.swiper-pagination-progressbar]:!bg-white/10
+            [&_.swiper-pagination-progressbar-fill]:!rounded-full
+            [&_.swiper-pagination-progressbar-fill]:!bg-cyan-300"
+        >
+          {services.map((item, index) => (
+            <SwiperSlide key={item.title} className="!h-auto">
+              <ServiceCard item={item} slideIndex={index} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+          <div className="mt-4 flex items-center justify-between">
+            <span className="text-xs font-medium tabular-nums text-white/50">
+              <span className="text-cyan-200">{String(activeService + 1).padStart(2, "0")}</span>
+              <span className="mx-1.5 text-white/25">/</span>
+              {String(services.length).padStart(2, "0")}
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                aria-label="Previous service"
+                onClick={() => mobileSwiper?.slidePrev()}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-200"
+              >
+                <FaChevronLeft aria-hidden="true" size={13} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next service"
+                onClick={() => mobileSwiper?.slideNext()}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 transition hover:bg-cyan-300/20"
+              >
+                <FaChevronRight aria-hidden="true" size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div

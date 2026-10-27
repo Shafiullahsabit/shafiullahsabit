@@ -48,7 +48,7 @@ const Projects = () => {
         }}
         className="!pb-12 !px-1 [&_.swiper-button-next]:!h-8 [&_.swiper-button-next]:!w-8 [&_.swiper-button-next]:!text-cyan-400 [&_.swiper-button-next::after]:!text-base [&_.swiper-button-prev]:!h-8 [&_.swiper-button-prev]:!w-8 [&_.swiper-button-prev]:!text-cyan-400 [&_.swiper-button-prev::after]:!text-base [&_.swiper-pagination-bullet]:!bg-white/50 [&_.swiper-pagination-bullet-active]:!bg-cyan-400"
       >
-        {portfolioProjects.map((project) => (
+        {portfolioProjects.map((project) =>(
           <SwiperSlide key={project.title} className="!h-auto">
             <div
               className="
@@ -91,7 +91,7 @@ const Projects = () => {
                   </div>
                 )}
               </div>
-
+              
               <div className="flex flex-1 flex-col gap-4 p-6">
                 <h3 className="text-xl font-bold text-white">
                   {project.title}
