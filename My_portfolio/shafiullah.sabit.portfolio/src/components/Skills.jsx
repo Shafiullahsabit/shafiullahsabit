@@ -17,12 +17,11 @@ import {
   SiDotnet,
   SiFlutter,
   SiPython,
-  SiOdoo,
+  SiSqlite,
   SiFigma,
   SiBootstrap,
   SiNodedotjs,
   SiDocker,
-  SiJenkins,
   SiOpenai,
 } from "react-icons/si";
 import { TbBrandCSharp } from "react-icons/tb";
@@ -45,12 +44,6 @@ const skills = [
     icon: FaJs,
     color: "#f7df1e",
     desc: "Interactive features, logic, and dynamic web behavior.",
-  },
-  {
-    name: "Odoo",
-    icon: SiOdoo,
-    color: "#714b67",
-    desc: "Customizing business workflows and ERP solutions with Odoo.",
   },
   {
     name: "Python",
@@ -143,10 +136,10 @@ const skills = [
     desc: "Packaging applications and their dependencies in containers.",
   },
   {
-    name: "Jenkins",
-    icon: SiJenkins,
-    color: "#d24939",
-    desc: "Automating build and delivery workflows with Jenkins.",
+    name: "SQLite",
+    icon: SiSqlite,
+    color: "#003b57",
+    desc: "Lightweight relational database storage and SQL queries.",
   },
   {
     name: ".NET",
