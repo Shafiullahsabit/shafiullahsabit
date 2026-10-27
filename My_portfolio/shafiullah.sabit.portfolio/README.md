@@ -35,12 +35,13 @@ inbox.
 6. Start the frontend with `npm run dev`. During local development the form
    submits directly using the publishable key and is protected by database
    RLS. The deployed Vercel form uses the `/api/contact` server endpoint.
-7. To enable dashboard page-view analytics, create a Plausible site for the
-   deployed portfolio domain and a read-only Stats API key. Set
-   `VITE_PLAUSIBLE_DOMAIN` to the site domain and set `PLAUSIBLE_DOMAIN` and
-   `PLAUSIBLE_API_KEY` in the Vercel environment. The `VITE_` value loads the
-   Plausible tracking script; the unprefixed API key is only used by the
-   server-side `/api/analytics` endpoint. Redeploy after setting these values.
+7. Vercel Web Analytics is used to track public portfolio page views. Enable
+   it for the Vercel project and include the `<Analytics />` component from
+   `@vercel/analytics/react` in the public app. View reports in the project's
+   Analytics tab in Vercel. The admin dashboard's optional 30-day chart uses
+   Plausible separately; to enable it, create a Plausible site and a read-only
+   Stats API key, then set `VITE_PLAUSIBLE_DOMAIN`, `PLAUSIBLE_DOMAIN`, and
+   `PLAUSIBLE_API_KEY` as described in the Vercel deployment section.
 
 The previous hard-coded frontend admin password is no longer used. Create or
 reset the administrator password in Supabase Auth.
@@ -70,10 +71,11 @@ SPA fallback configured before deploying there.
    environments you deploy. Use the project's publishable key for both key
    variables. Do not add a secret key: public contact submissions use the
    anonymous RLS policy, not admin access.
-3. For Plausible analytics, add `VITE_PLAUSIBLE_DOMAIN`,
-   `PLAUSIBLE_DOMAIN`, and a read-only `PLAUSIBLE_API_KEY` as described in
-   Local setup. Analytics stays disabled and no page-view totals are shown
-   until these are configured.
+3. Enable Web Analytics for the Vercel project to track public page views;
+   view its reports in the Vercel project's Analytics tab. The admin
+   dashboard's optional Plausible chart is separate and requires
+   `VITE_PLAUSIBLE_DOMAIN`, `PLAUSIBLE_DOMAIN`, and a read-only
+   `PLAUSIBLE_API_KEY` as described in Local setup.
 4. Deploy or redeploy so Vite can include the `VITE_*` variables in the client
    build and Vercel can configure the server endpoints.
 5. In Supabase **Authentication → URL Configuration**, set the production

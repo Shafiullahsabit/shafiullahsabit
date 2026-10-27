@@ -276,9 +276,9 @@ const Overview = ({ onNavigate }) => {
             <div className="mt-6 h-56 animate-pulse rounded-xl bg-white/5" />
           ) : analytics.status === "unconfigured" ? (
             <div className="mt-6 rounded-xl border border-amber-300/20 bg-amber-300/5 p-4 text-sm leading-relaxed text-amber-100/80">
-              Analytics isn’t configured yet, so page-view totals are not
-              available. Add the Plausible settings listed in the project
-              README and redeploy to enable tracking and this chart.
+              This chart uses optional Plausible reporting, which is not
+              configured. Vercel Web Analytics tracks the public portfolio;
+              view its reports in the project’s Analytics tab on Vercel.
             </div>
           ) : analytics.status === "error" ? (
             <div

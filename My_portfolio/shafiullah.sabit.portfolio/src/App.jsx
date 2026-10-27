@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import Particles from "./components/Particles.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./components/Home.jsx";
@@ -58,6 +59,7 @@ function Portfolio() {
       <Contact />
       <Footer />
       <MouseEffect />
+      <Analytics />
     </div>
   );
 }
