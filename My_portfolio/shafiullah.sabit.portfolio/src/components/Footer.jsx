@@ -18,6 +18,17 @@ const footerLinks = [
 ];
 const whatsappLink = socialLinks.find((social) => social.label === "WhatsApp");
 
+const scrollToSection = (event, sectionId) => {
+  event.preventDefault();
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+
+  window.history.replaceState(null, "", `#${sectionId}`);
+  const headerOffset = sectionId === "home" ? 0 : 88;
+  const top = section.getBoundingClientRect().top + window.scrollY - headerOffset;
+  window.scrollTo({ top, behavior: "smooth" });
+};
+
 const Footer = () => {
   const [hasLeftHomeSection, setHasLeftHomeSection] = useState(false);
 
@@ -70,7 +81,8 @@ const Footer = () => {
             </div>
             <a
               href="#contact"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              onClick={(event) => scrollToSection(event, "contact")}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
               Contact me <FaArrowRight aria-hidden="true" />
             </a>
@@ -85,6 +97,7 @@ const Footer = () => {
             >
               <a
                 href="#home"
+                onClick={(event) => scrollToSection(event, "home")}
                 aria-label="Shafiullah Sabit — back to home"
                 className="inline-flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
               >
@@ -122,6 +135,9 @@ const Footer = () => {
                   <li key={label}>
                     <a
                       href={href}
+                      onClick={(event) =>
+                        scrollToSection(event, href.slice(1))
+                      }
                       className="text-sm text-white/55 transition hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
                     >
                       {label}
@@ -174,9 +190,10 @@ const Footer = () => {
             </p>
             <a
               href="#home"
+              onClick={(event) => scrollToSection(event, "home")}
               className="inline-flex items-center gap-2 rounded-lg text-xs font-medium text-white/55 transition hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
             >
-              Back to home <FaArrowRight className="-rotate-45" aria-hidden="true" />
+              Back to home <FaArrowUp aria-hidden="true" />
             </a>
           </div>
         </div>
