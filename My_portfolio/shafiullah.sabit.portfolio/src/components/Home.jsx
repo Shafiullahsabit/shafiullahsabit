@@ -1,13 +1,8 @@
 import React from "react";
 import { motion as Motion } from "framer-motion";
-import {
-  FaArrowRight,
-  FaFacebook,
-  FaGithub,
-  FaLinkedin,
-  FaWhatsapp,
-} from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import PremiumSlider from "./PremiumSlider";
+import { socialLinks } from "../data/socialLinks";
 
 const Home = () => {
   return (
@@ -86,19 +81,26 @@ const Home = () => {
           </div>
 
           {/* Social Icons */}
-          <div className="mt-8 flex gap-6 justify-center lg:justify-start text-xl">
-            <Motion.a whileHover={{ y: -4 }} href="#">
-              <FaGithub />
-            </Motion.a>
-            <Motion.a whileHover={{ y: -4 }} href="#">
-              <FaLinkedin />
-            </Motion.a>
-            <Motion.a whileHover={{ y: -4 }} href="#">
-              <FaFacebook />
-            </Motion.a>
-            <Motion.a whileHover={{ y: -4 }} href="#">
-              <FaWhatsapp />
-            </Motion.a>
+          <div className="mt-8 flex justify-center gap-3 lg:justify-start">
+            {socialLinks.map((social) => {
+              const Icon = social.icon;
+
+              return (
+                <Motion.a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit my ${social.label} profile`}
+                  title={social.label}
+                  whileHover={{ y: -4, scale: 1.08 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-lg text-white/70 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                >
+                  <Icon aria-hidden="true" />
+                </Motion.a>
+              );
+            })}
           </div>
         </Motion.div>
 
