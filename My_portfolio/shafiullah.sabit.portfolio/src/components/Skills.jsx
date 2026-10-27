@@ -21,6 +21,7 @@ import {
   SiFigma,
   SiBootstrap,
   SiNodedotjs,
+  SiGit,
   SiDocker,
   SiOpenai,
 } from "react-icons/si";
@@ -128,6 +129,12 @@ const skills = [
     icon: SiNodedotjs,
     color: "#5fa04e",
     desc: "Creating server-side JavaScript tools and application services.",
+  },
+  {
+    name: "Git",
+    icon: SiGit,
+    color: "#f05032",
+    desc: "Tracking code changes and collaborating with version control.",
   },
   {
     name: "Docker",
