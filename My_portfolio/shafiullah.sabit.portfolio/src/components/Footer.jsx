@@ -54,18 +54,18 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="relative overflow-hidden border-t border-white/10 bg-gradient-to-b from-[#07111a] to-black">
+      <footer className="relative overflow-hidden bg-transparent">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[min(90vw,48rem)] -translate-x-1/2 rounded-full bg-cyan-400/[0.07] blur-3xl"
         />
-        <div className="relative mx-auto max-w-7xl px-5 pb-6 pt-12 sm:px-8 sm:pt-16">
+        <div className="relative mx-4 mt-10 max-w-7xl rounded-2xl border border-white/10 bg-white/5 px-5 py-6 shadow-[0_0_40px_rgba(0,255,255,0.04)] backdrop-blur-xl sm:mx-6 sm:mt-14 sm:px-6 sm:py-8 lg:mx-auto">
           <Motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-10 flex flex-col gap-6 rounded-3xl border border-cyan-200/10 bg-white/[0.04] p-6 shadow-[0_0_50px_rgba(34,211,238,0.06)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:p-8"
+            className="mb-8 flex flex-col gap-5 rounded-2xl border border-white/10 bg-black/20 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
           >
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
@@ -82,13 +82,13 @@ const Footer = () => {
             <a
               href="#contact"
               onClick={(event) => scrollToSection(event, "contact")}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-blue-400 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-300 transition hover:bg-blue-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
             >
               Contact me <FaArrowRight aria-hidden="true" />
             </a>
           </Motion.div>
 
-          <div className="grid gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr]">
+          <div className="grid gap-8 border-b border-white/10 pb-8 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr]">
             <Motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -101,11 +101,11 @@ const Footer = () => {
                 aria-label="Shafiullah Sabit — back to home"
                 className="inline-flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-200/20 bg-gradient-to-br from-cyan-300 to-blue-500 font-black text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.2)]">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 font-black text-cyan-300">
                   SS
                 </span>
                 <span className="text-lg font-bold text-white">
-                  Shafiullah <span className="text-cyan-300">Sabit</span>
+                  Shafiullah<span className="text-cyan-400"> Sabit</span>
                 </span>
               </a>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-white/55">
@@ -138,7 +138,7 @@ const Footer = () => {
                       onClick={(event) =>
                         scrollToSection(event, href.slice(1))
                       }
-                      className="text-sm text-white/55 transition hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                      className="text-sm font-bold text-white/70 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
                     >
                       {label}
                     </a>
@@ -173,7 +173,7 @@ const Footer = () => {
                       title={social.label}
                       whileHover={{ y: -3, scale: 1.05 }}
                       whileTap={{ scale: 0.96 }}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-base text-white/65 transition hover:border-cyan-300/35 hover:bg-cyan-300/10 hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-base text-white/70 transition hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(0,255,255,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
                     >
                       <Icon aria-hidden="true" />
                     </Motion.a>
