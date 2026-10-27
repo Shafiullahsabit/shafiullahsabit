@@ -6,13 +6,15 @@ import {
   FaRegCommentDots,
   FaCheckCircle,
   FaWhatsapp,
-  FaLinkedin,
 } from "react-icons/fa";
 import { supabase } from "../lib/supabase";
 import { getContactMessageError } from "../lib/contactMessageErrors";
+import { socialLinks } from "../data/socialLinks";
 
+const contactEmail = "shafiuallahsabit@gmail.com";
+const whatsappLink = socialLinks.find((social) => social.label === "WhatsApp");
 const NOT_CONNECTED_MESSAGE =
-  "The contact form is not connected yet. Please email me at shafiullahsabit@gmail.com.";
+  `The contact form is not connected yet. Please email me at ${contactEmail}.`;
 
 const isJsonResponse = (response) =>
   (response.headers.get("content-type") || "").includes("application/json");
@@ -64,6 +66,13 @@ const sendContactMessage = async (message) => {
 };
 
 const Contact = () => {
+  const isMobileDevice =
+    typeof navigator !== "undefined" &&
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const emailHref = isMobileDevice
+    ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}`
+    : `mailto:${contactEmail}`;
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -173,47 +182,60 @@ const Contact = () => {
         <Motion.div
           variants={itemVariants}
           className="
-            h-full rounded-2xl border border-white/10
-            bg-white/5 p-6 shadow-[0_0_45px_rgba(0,255,255,0.07)]
+            relative h-full overflow-hidden rounded-3xl border border-cyan-200/10
+            bg-gradient-to-br from-[#101d2a] via-[#0b111b] to-[#090b12]
+            p-6 shadow-[0_0_55px_rgba(0,255,255,0.08)]
             backdrop-blur-xl sm:p-8
           "
         >
-          <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">
-            Let’s work together ✨
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl"
+          />
+          <div className="relative">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1 text-[11px] font-medium text-emerald-200/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,0.8)]" />
+            Available for opportunities
+          </span>
+          <h3 className="mb-3 mt-4 text-xl font-bold text-white sm:text-2xl">
+            Let’s work together
           </h3>
 
-          <p className="text-white/60 mb-6 text-sm sm:text-base leading-relaxed">
+          <p className="mb-6 text-sm leading-relaxed text-white/60 sm:text-base">
             I’m available for freelance projects and collaborations. Choose a
             method below to contact me quickly.
           </p>
 
-          <div className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Motion.a
               variants={itemVariants}
               whileHover={{ y: -3, scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              href="mailto:shafiullahsabit@gmail.com"
+              href={emailHref}
+              target={isMobileDevice ? "_blank" : undefined}
+              rel={isMobileDevice ? "noopener noreferrer" : undefined}
+              aria-label={`Email ${contactEmail}`}
               className="
-                group rounded-2xl p-4
-                bg-white/5 border border-white/10
-                hover:border-cyan-400/30
-                transition-all duration-300
+                group rounded-2xl border border-white/10 bg-white/[0.04] p-4
+                transition-all duration-300 hover:border-cyan-300/30 hover:bg-cyan-300/[0.06]
               "
             >
               <div className="flex items-center gap-3">
                 <div
                   className="
-                    h-10 w-10 rounded-xl flex items-center justify-center
-                    bg-white/5 border border-white/10
-                    group-hover:border-cyan-400/30 transition
+                    flex h-10 w-10 items-center justify-center rounded-xl
+                    border border-cyan-300/15 bg-cyan-300/[0.08]
+                    transition group-hover:border-cyan-300/30
                   "
                 >
-                  <FaEnvelope className="text-cyan-400 text-lg" />
+                  <FaEnvelope className="text-lg text-cyan-300" />
                 </div>
 
-                <div className="leading-tight">
+                <div className="min-w-0 leading-tight">
                   <p className="text-white font-semibold text-sm">Email</p>
-                  <p className="text-white/55 text-xs">Send a message</p>
+                  <p className="mt-1 truncate text-xs text-white/55">
+                    {contactEmail}
+                  </p>
                 </div>
               </div>
             </Motion.a>
@@ -222,25 +244,23 @@ const Contact = () => {
               variants={itemVariants}
               whileHover={{ y: -3, scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              href="https://wa.me/93774256705"
+              href={whatsappLink.href}
               target="_blank"
               rel="noreferrer"
               className="
-                group rounded-2xl p-4
-                bg-white/5 border border-white/10
-                hover:border-cyan-400/30
-                transition-all duration-300
+                group rounded-2xl border border-white/10 bg-white/[0.04] p-4
+                transition-all duration-300 hover:border-emerald-300/30 hover:bg-emerald-300/[0.06]
               "
             >
               <div className="flex items-center gap-3">
                 <div
                   className="
                     h-10 w-10 rounded-xl flex items-center justify-center
-                    bg-white/5 border border-white/10
-                    group-hover:border-cyan-400/30 transition
+                    border border-emerald-300/15 bg-emerald-300/[0.08]
+                    transition group-hover:border-emerald-300/30
                   "
                 >
-                  <FaWhatsapp className="text-cyan-400 text-lg" />
+                  <FaWhatsapp className="text-lg text-emerald-300" />
                 </div>
 
                 <div className="leading-tight">
@@ -251,22 +271,30 @@ const Contact = () => {
             </Motion.a>
           </div>
 
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white/50">
+          <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
             Find me online
           </h4>
-          <div className="mb-7 flex gap-3">
-            <a
-              href="https://www.linkedin.com/in/shafiullah-sabit-6482b5330/?originalSubdomain=af"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition hover:border-cyan-400/40 hover:text-cyan-400"
-            >
-              <FaLinkedin />
-            </a>
+          <div className="mb-6 flex flex-wrap gap-2.5">
+            {socialLinks.map((social) => {
+              const Icon = social.icon;
+
+              return (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit my ${social.label} profile`}
+                  title={social.label}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-base text-white/65 transition hover:-translate-y-0.5 hover:border-cyan-300/35 hover:bg-cyan-300/10 hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                >
+                  <Icon aria-hidden="true" />
+                </a>
+              );
+            })}
           </div>
 
-          <ul className="space-y-3 text-sm text-white/70 sm:text-base">
+          <ul className="space-y-3 border-t border-white/10 pt-5 text-sm text-white/70 sm:text-base">
             <li className="flex items-start gap-3">
               <FaRegCommentDots className="text-cyan-400 mt-1 shrink-0" />
               Tell me what you want to build.
@@ -284,6 +312,7 @@ const Contact = () => {
           <p className="mt-6 text-white/45 text-xs sm:text-sm">
             💡 Tip: WhatsApp is the fastest way to reach me.
           </p>
+          </div>
         </Motion.div>
 
         <Motion.form
