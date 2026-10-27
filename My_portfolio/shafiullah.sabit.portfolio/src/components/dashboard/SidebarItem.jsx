@@ -7,6 +7,7 @@ const SidebarItem = ({
   onClick,
   collapsed,
   variant = "default",
+  compact = false,
 }) => {
   const isMuted = variant === "muted";
 
@@ -16,7 +17,9 @@ const SidebarItem = ({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       title={collapsed ? label : undefined}
-      className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
+      className={`group flex w-full items-center gap-3 rounded-xl border px-3 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
+        compact ? "py-2" : "py-2.5"
+      } ${
         collapsed ? "lg:justify-center lg:px-2" : ""
       } ${
         active
@@ -26,7 +29,7 @@ const SidebarItem = ({
             : "border-transparent text-white/60 hover:border-white/[0.06] hover:bg-white/[0.06] hover:text-white"
       }`}
     >
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-base">
+      <span className="flex h-4 w-4 shrink-0 items-center justify-center text-sm">
         {icon}
       </span>
       <span className={collapsed ? "lg:hidden" : ""}>{label}</span>
