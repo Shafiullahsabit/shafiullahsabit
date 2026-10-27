@@ -3,6 +3,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Overview from "./Overview";
 import ContactMessages from "./ContactMessages";
+import Analytics from "./Analytics";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { supabase } from "../../lib/supabase";
@@ -17,7 +18,11 @@ const Dashboard = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const activeTitle =
-    activeSection === "contacts" ? "Contact messages" : "Overview";
+    activeSection === "contacts"
+      ? "Contact messages"
+      : activeSection === "analytics"
+        ? "Analytics"
+        : "Overview";
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -88,6 +93,9 @@ const Dashboard = () => {
           <Overview onNavigate={setActiveSection} />
         )}
         {activeSection === "contacts" && <ContactMessages />}
+        {activeSection === "analytics" && (
+          <Analytics onNavigate={setActiveSection} />
+        )}
       </main>
     </div>
   );

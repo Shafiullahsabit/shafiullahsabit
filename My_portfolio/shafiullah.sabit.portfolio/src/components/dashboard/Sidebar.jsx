@@ -5,6 +5,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaChartPie,
+  FaChartLine,
   FaComments,
   FaSignOutAlt,
 } from "react-icons/fa";
@@ -20,6 +21,7 @@ const Sidebar = ({
 }) => {
   const items = [
     { id: "overview", label: "Overview", icon: <FaChartPie /> },
+    { id: "analytics", label: "Analytics", icon: <FaChartLine /> },
     { id: "contacts", label: "Contact messages", icon: <FaComments /> },
   ];
 
