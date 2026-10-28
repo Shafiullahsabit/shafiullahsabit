@@ -10,23 +10,12 @@ import {
 import { getContactMessageError } from "../../lib/contactMessageErrors";
 import { supabase } from "../../lib/supabase";
 import StatCard from "./StatCard";
+import DashboardLineChart from "./DashboardLineChart";
 
 const numberFormatter = new Intl.NumberFormat();
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  month: "short",
-  day: "numeric",
-});
-const detailDateFormatter = new Intl.DateTimeFormat(undefined, {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
 const rangeOptions = [7, 30];
 
 const getDateKey = (date) => date.toISOString().slice(0, 10);
-const formatDate = (date) => dateFormatter.format(new Date(`${date}T00:00:00`));
-const formatDetailDate = (date) =>
-  detailDateFormatter.format(new Date(`${date}T00:00:00`));
 
 const createDailySeries = (days, startDate, rows, valueForRow) => {
   const totalsByDate = new Map();
@@ -51,26 +40,7 @@ const TrendChart = ({
   emptyMessage,
   isLoading,
 }) => {
-  const [selectedDate, setSelectedDate] = useState(null);
-  const width = 720;
-  const height = 220;
-  const padding = 12;
-  const maxValue = Math.max(1, ...points.map((point) => point.value));
-  const chartPoints = points.map((point, index) => ({
-    ...point,
-    x: points.length > 1 ? (index / (points.length - 1)) * width : width / 2,
-    y:
-      height -
-      padding -
-      (point.value / maxValue) * (height - padding * 2),
-  }));
-  const linePoints = chartPoints.map(({ x, y }) => `${x},${y}`).join(" ");
-  const areaPoints = chartPoints.length
-    ? `0,${height} ${linePoints} ${width},${height}`
-    : "";
-  const labelIndexes = [...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])];
-  const selectedPoint =
-    points.find((point) => point.date === selectedDate) ?? points.at(-1);
+  const valueLabel = title === "Page views" ? "page views" : "messages";
 
   return (
     <section className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_0_35px_rgba(0,255,255,0.04)] backdrop-blur-xl sm:p-6">
@@ -97,113 +67,12 @@ const TrendChart = ({
         </p>
       ) : (
         <div className="mt-5">
-          {selectedPoint && (
-            <div
-              className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3"
-              aria-live="polite"
-            >
-              <span className="text-sm text-white/60">
-                {formatDetailDate(selectedPoint.date)}
-              </span>
-              <span className="text-sm font-semibold text-cyan-200">
-                {numberFormatter.format(selectedPoint.value)}{" "}
-                {title === "Page views" ? "page views" : "messages"}
-              </span>
-            </div>
-          )}
-          <div className="overflow-x-auto">
-            <svg
-              viewBox={`0 0 ${width} ${height}`}
-              role="group"
-              aria-label={`${title} trend. Select a point to inspect its date and value.`}
-              className="h-56 min-w-[460px] w-full overflow-visible"
-            >
-              <defs>
-                <linearGradient
-                  id={`gradient-${title.replace(/\s+/g, "-").toLowerCase()}`}
-                  x1="0"
-                  x2="0"
-                  y1="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor={color} stopOpacity="0.28" />
-                  <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {[0.25, 0.5, 0.75, 1].map((ratio) => {
-                const y = height - padding - ratio * (height - padding * 2);
-                return (
-                  <line
-                    key={ratio}
-                    x1="0"
-                    x2={width}
-                    y1={y}
-                    y2={y}
-                    stroke="rgba(255,255,255,0.08)"
-                    strokeDasharray="4 6"
-                  />
-                );
-              })}
-              <polygon
-                points={areaPoints}
-                fill={`url(#gradient-${title.replace(/\s+/g, "-").toLowerCase()})`}
-              />
-              <polyline
-                points={linePoints}
-                fill="none"
-                stroke={color}
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {chartPoints.map((point) => (
-                <g
-                  key={point.date}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${formatDetailDate(point.date)}: ${numberFormatter.format(point.value)} ${title === "Page views" ? "page views" : "messages"}`}
-                  className="dashboard-chart-point cursor-pointer outline-none"
-                  onClick={() => setSelectedDate(point.date)}
-                  onFocus={() => setSelectedDate(point.date)}
-                  onMouseEnter={() => setSelectedDate(point.date)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setSelectedDate(point.date);
-                    }
-                  }}
-                >
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r="12"
-                    fill="transparent"
-                  />
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r="4"
-                    fill={color}
-                    className={`dashboard-chart-point-marker ${
-                      selectedPoint?.date === point.date
-                        ? "dashboard-chart-point-selected"
-                        : ""
-                    }`}
-                  />
-                  <title>
-                    {formatDetailDate(point.date)}:{" "}
-                    {numberFormatter.format(point.value)}{" "}
-                    {title === "Page views" ? "page views" : "messages"}
-                  </title>
-                </g>
-              ))}
-            </svg>
-          </div>
-          <div className="mt-2 flex justify-between text-xs text-white/40">
-            {labelIndexes.map((index) => (
-              <span key={points[index].date}>{formatDate(points[index].date)}</span>
-            ))}
-          </div>
+          <DashboardLineChart
+            title={title}
+            points={points}
+            color={color}
+            valueLabel={valueLabel}
+          />
         </div>
       )}
     </section>
@@ -380,7 +249,10 @@ const Analytics = ({ onNavigate }) => {
     (total, point) => total + point.value,
     0,
   );
-  const maxTypeCount = Math.max(1, ...messages.types.map((type) => type.count));
+  const interestTotal = messages.types.reduce(
+    (total, type) => total + type.count,
+    0,
+  );
 
   return (
     <section className="space-y-6">
@@ -498,12 +370,16 @@ const Analytics = ({ onNavigate }) => {
       <section className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_0_35px_rgba(0,255,255,0.04)] backdrop-blur-xl sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg font-semibold text-white">Message interests</h3>
+            <h3 className="text-lg font-semibold text-white">
+              Project type interests
+            </h3>
             <p className="mt-1 text-sm text-white/45">
-              Most selected project types · last {range} days
+              Share of contact requests by project type · last {range} days
             </p>
           </div>
-          <FaChartLine className="text-violet-300" aria-hidden="true" />
+          <div className="rounded-xl border border-violet-300/15 bg-violet-300/10 p-2.5 text-violet-300">
+            <FaChartLine aria-hidden="true" />
+          </div>
         </div>
         {messages.status === "loading" ? (
           <div className="mt-5 h-32 animate-pulse rounded-xl bg-white/5" />
@@ -512,30 +388,51 @@ const Analytics = ({ onNavigate }) => {
             No project interests to show for this period.
           </p>
         ) : (
-          <ul className="mt-5 space-y-4">
-            {messages.types.map((type) => (
-              <li key={type.label}>
-                <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-                  <span className="truncate text-white/75">{type.label}</span>
-                  <span className="shrink-0 text-white/45">
-                    {numberFormatter.format(type.count)}
-                  </span>
-                </div>
-                <div
-                  className="h-2 overflow-hidden rounded-full bg-white/10"
-                  role="progressbar"
-                  aria-label={`${type.label} message count`}
-                  aria-valuemin={0}
-                  aria-valuemax={maxTypeCount}
-                  aria-valuenow={type.count}
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {messages.types.map((type, index) => {
+              const share =
+                interestTotal > 0
+                  ? Math.round((type.count / interestTotal) * 100)
+                  : 0;
+              return (
+                <li
+                  key={type.label}
+                  className="min-w-0 rounded-xl border border-white/[0.08] bg-black/10 p-4"
                 >
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-300/10 text-xs font-semibold text-violet-300">
+                        {index + 1}
+                      </span>
+                      <span className="truncate text-sm font-medium text-white/80">
+                        {type.label}
+                      </span>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold tabular-nums text-white">
+                        {numberFormatter.format(type.count)}
+                      </p>
+                      <p className="text-[11px] tabular-nums text-white/45">
+                        {share}% of requests
+                      </p>
+                    </div>
+                  </div>
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-300"
-                    style={{ width: `${(type.count / maxTypeCount) * 100}%` }}
-                  />
-                </div>
-              </li>
-            ))}
+                    className="h-2 overflow-hidden rounded-full bg-white/10"
+                    role="progressbar"
+                    aria-label={`${type.label} share of project interests`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={share}
+                  >
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-300 transition-[width] duration-500"
+                      style={{ width: `${share}%` }}
+                    />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
         <button

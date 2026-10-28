@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { getContactMessageError } from "../../lib/contactMessageErrors";
 import { supabase } from "../../lib/supabase";
 import { portfolioProjects } from "../../data/portfolioProjects";
+import DashboardLineChart from "./DashboardLineChart";
 import StatCard from "./StatCard";
 
 const numberFormatter = new Intl.NumberFormat();
@@ -26,7 +27,6 @@ const formatDate = (value) => {
 };
 
 const Overview = ({ onNavigate }) => {
-  const [selectedPointDate, setSelectedPointDate] = useState(null);
   const [messageStats, setMessageStats] = useState({
     total: 0,
     unread: 0,
@@ -139,35 +139,6 @@ const Overview = ({ onNavigate }) => {
     loadMessages();
     loadAnalytics();
   }, [loadAnalytics, loadMessages]);
-
-  const chartWidth = 720;
-  const chartHeight = 220;
-  const chartPadding = 12;
-  const maxPageViews = Math.max(
-    1,
-    ...analytics.points.map((point) => point.pageViews),
-  );
-  const chartPoints = analytics.points.map((point, index) => {
-    const x =
-      analytics.points.length > 1
-        ? (index / (analytics.points.length - 1)) * chartWidth
-        : chartWidth / 2;
-    const y =
-      chartHeight -
-      chartPadding -
-      (point.pageViews / maxPageViews) * (chartHeight - chartPadding * 2);
-    return { ...point, x, y };
-  });
-  const selectedChartPoint =
-    chartPoints.find((point) => point.date === selectedPointDate) ??
-    chartPoints.at(-1);
-  const linePoints = chartPoints.map(({ x, y }) => `${x},${y}`).join(" ");
-  const areaPoints = chartPoints.length
-    ? `0,${chartHeight} ${linePoints} ${chartWidth},${chartHeight}`
-    : "";
-  const labelIndexes = [0, 7, 14, 21, 29].filter(
-    (index) => index < analytics.points.length,
-  );
 
   return (
     <section className="space-y-6">
@@ -294,126 +265,15 @@ const Overview = ({ onNavigate }) => {
             </p>
           ) : (
             <div className="mt-6">
-              {selectedChartPoint && (
-                <div
-                  className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3"
-                  aria-live="polite"
-                >
-                  <span className="text-sm text-white/60">
-                    {formatDate(selectedChartPoint.date)}
-                  </span>
-                  <span className="text-sm font-semibold text-cyan-200">
-                    {numberFormatter.format(selectedChartPoint.pageViews)} page
-                    views
-                  </span>
-                </div>
-              )}
-              <div className="overflow-x-auto">
-                <svg
-                  viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                  role="group"
-                  aria-label="Daily page views over the last 30 days. Select a point to inspect its date and value."
-                  className="h-56 min-w-[520px] w-full overflow-visible"
-                >
-                  {[0.25, 0.5, 0.75, 1].map((ratio) => {
-                    const y =
-                      chartHeight -
-                      chartPadding -
-                      ratio * (chartHeight - chartPadding * 2);
-                    return (
-                      <line
-                        key={ratio}
-                        x1="0"
-                        x2={chartWidth}
-                        y1={y}
-                        y2={y}
-                        stroke="rgba(255,255,255,0.08)"
-                        strokeDasharray="4 6"
-                      />
-                    );
-                  })}
-                  <polygon
-                    points={areaPoints}
-                    fill="url(#page-view-gradient)"
-                  />
-                  <defs>
-                    <linearGradient
-                      id="page-view-gradient"
-                      x1="0"
-                      x2="0"
-                      y1="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor="#22d3ee"
-                        stopOpacity="0.3"
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="#22d3ee"
-                        stopOpacity="0"
-                      />
-                    </linearGradient>
-                  </defs>
-                  <polyline
-                    points={linePoints}
-                    fill="none"
-                    stroke="#22d3ee"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {chartPoints.map((point) => (
-                    <g
-                      key={point.date}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`${formatDate(point.date)}: ${numberFormatter.format(point.pageViews)} page views`}
-                      className="dashboard-chart-point cursor-pointer outline-none"
-                      onClick={() => setSelectedPointDate(point.date)}
-                      onFocus={() => setSelectedPointDate(point.date)}
-                      onMouseEnter={() => setSelectedPointDate(point.date)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          setSelectedPointDate(point.date);
-                        }
-                      }}
-                    >
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r="12"
-                        fill="transparent"
-                        className="dashboard-chart-point-target"
-                      />
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r="4"
-                        fill="#22d3ee"
-                        className={`dashboard-chart-point-marker ${
-                          selectedChartPoint?.date === point.date
-                            ? "dashboard-chart-point-selected"
-                            : ""
-                        }`}
-                      />
-                      <title>
-                        {formatDate(point.date)}:{" "}
-                        {numberFormatter.format(point.pageViews)} page views
-                      </title>
-                    </g>
-                  ))}
-                </svg>
-              </div>
-              <div className="mt-2 flex justify-between text-xs text-white/40">
-                {labelIndexes.map((index) => (
-                  <span key={analytics.points[index].date}>
-                    {formatDate(analytics.points[index].date)}
-                  </span>
-                ))}
-              </div>
+              <DashboardLineChart
+                title="Daily page views"
+                points={analytics.points.map((point) => ({
+                  date: point.date,
+                  value: point.pageViews,
+                }))}
+                color="#22d3ee"
+                valueLabel="page views"
+              />
             </div>
           )}
         </section>

@@ -86,6 +86,14 @@
   stroke: #cbd5e1;
 }
 
+.dashboard-shell[data-theme="light"] .dashboard-chart-gridline {
+  stroke: rgb(100 116 139 / 20%);
+}
+
+.dashboard-shell[data-theme="light"] .dashboard-chart-axis-label {
+  fill: #64748b;
+}
+
 .dashboard-chart-point:focus-visible .dashboard-chart-point-marker {
   stroke: currentColor;
   stroke-width: 3px;
@@ -95,6 +103,15 @@
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 120ms ease-out;
+}
+
+.dashboard-chart-gridline {
+  stroke: rgb(148 163 184 / 18%);
+}
+
+.dashboard-chart-axis-label {
+  fill: #94a3b8;
+  font-size: 11px;
 }
 
 .dashboard-chart-point-selected {
