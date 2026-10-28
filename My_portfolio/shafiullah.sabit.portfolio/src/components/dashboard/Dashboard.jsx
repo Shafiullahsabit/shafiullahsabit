@@ -8,8 +8,21 @@ import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { supabase } from "../../lib/supabase";
 import ConfirmDialog from "./ConfirmDialog";
+import "./dashboard-theme.css";
+
+const THEME_STORAGE_KEY = "portfolio-dashboard-theme";
 
 const Dashboard = () => {
+  const [theme, setTheme] = useState(() => {
+    try {
+      return window.localStorage.getItem(THEME_STORAGE_KEY) === "light"
+        ? "light"
+        : "dark";
+    } catch (error) {
+      console.error("Unable to read the dashboard theme preference:", error);
+      return "dark";
+    }
+  });
   const [sidebarOpen, setSidebarOpen] = useState(() =>
     window.matchMedia("(min-width: 1024px)").matches,
   );
@@ -23,6 +36,18 @@ const Dashboard = () => {
       : activeSection === "analytics"
         ? "Analytics"
         : "Overview";
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => {
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      try {
+        window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      } catch (error) {
+        console.error("Unable to save the dashboard theme preference:", error);
+      }
+      return nextTheme;
+    });
+  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -41,12 +66,21 @@ const Dashboard = () => {
 
   return (
     <div
-      className="relative min-h-screen bg-black text-white"
+      className="dashboard-shell relative min-h-screen bg-black text-white"
+      data-theme={theme}
       style={{
         "--dashboard-sidebar-width": sidebarOpen ? "16rem" : "5rem",
       }}
     >
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style:
+            theme === "light"
+              ? { background: "#ffffff", color: "#172033" }
+              : { background: "#111827", color: "#f8fafc" },
+        }}
+      />
 
       {showLogoutConfirm && (
         <ConfirmDialog
@@ -87,6 +121,8 @@ const Dashboard = () => {
         <Header
           title={activeTitle}
           onMenuToggle={() => setSidebarOpen((isOpen) => !isOpen)}
+          theme={theme}
+          onThemeToggle={toggleTheme}
         />
 
         {activeSection === "overview" && (
