@@ -7,11 +7,12 @@ import {
   FaSyncAlt,
   FaUserCog,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getContactMessageError } from "../../lib/contactMessageErrors";
 import { supabase } from "../../lib/supabase";
 import { portfolioProjects } from "../../data/portfolioProjects";
 import DashboardLineChart from "./DashboardLineChart";
+import ConfirmDialog from "./ConfirmDialog";
 import StatCard from "./StatCard";
 
 const numberFormatter = new Intl.NumberFormat();
@@ -27,6 +28,8 @@ const formatDate = (value) => {
 };
 
 const Overview = ({ onNavigate }) => {
+  const [quickAction, setQuickAction] = useState(null);
+  const navigate = useNavigate();
   const [messageStats, setMessageStats] = useState({
     total: 0,
     unread: 0,
@@ -40,6 +43,32 @@ const Overview = ({ onNavigate }) => {
     points: [],
     error: "",
   });
+
+  const confirmQuickAction = () => {
+    if (!quickAction) return;
+
+    switch (quickAction) {
+      case "messages":
+        setQuickAction(null);
+        onNavigate("contacts");
+        break;
+      case "projects":
+      case "portfolio":
+        setQuickAction(null);
+        navigate(quickAction === "projects" ? "/#projects" : "/");
+        break;
+      case "profile":
+        setQuickAction(null);
+        window.open(
+          "https://supabase.com/dashboard/project/ntjvttezfbmmfimzphhb/auth/users",
+          "_blank",
+          "noopener,noreferrer",
+        );
+        break;
+      default:
+        setQuickAction(null);
+    }
+  };
 
   const loadMessages = useCallback(async () => {
     if (!supabase) {
@@ -142,6 +171,36 @@ const Overview = ({ onNavigate }) => {
 
   return (
     <section className="space-y-6">
+      {quickAction && (
+        <ConfirmDialog
+          variant="primary"
+          title={
+            quickAction === "messages"
+              ? "Open your contact inbox?"
+              : quickAction === "projects"
+                ? "Leave the dashboard to review projects?"
+                : quickAction === "profile"
+                  ? "Open Supabase profile settings?"
+                  : "Leave the dashboard to view your portfolio?"
+          }
+          description={
+            quickAction === "messages"
+              ? "You will stay in the dashboard and switch to Contact messages."
+              : quickAction === "profile"
+                ? "Supabase profile settings will open in a new browser tab."
+                : "This will take you away from the dashboard."
+          }
+          confirmLabel={
+            quickAction === "messages"
+              ? "Open inbox"
+              : quickAction === "profile"
+                ? "Continue to Supabase"
+                : "Leave dashboard"
+          }
+          onCancel={() => setQuickAction(null)}
+          onConfirm={confirmQuickAction}
+        />
+      )}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -362,7 +421,7 @@ const Overview = ({ onNavigate }) => {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <button
             type="button"
-            onClick={() => onNavigate("contacts")}
+            onClick={() => setQuickAction("messages")}
             className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
           >
             <span className="flex items-center gap-3 font-semibold text-white">
@@ -373,9 +432,10 @@ const Overview = ({ onNavigate }) => {
               Open the contact inbox
             </span>
           </button>
-          <Link
-            to="/#projects"
-            className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
+          <button
+            type="button"
+            onClick={() => setQuickAction("projects")}
+            className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
           >
             <span className="flex items-center gap-3 font-semibold text-white">
               <FaGlobe className="text-cyan-300" />
@@ -384,12 +444,11 @@ const Overview = ({ onNavigate }) => {
             <span className="mt-2 block text-xs text-white/45">
               Review projects shown on the portfolio
             </span>
-          </Link>
-          <a
-            href="https://supabase.com/dashboard/project/ntjvttezfbmmfimzphhb/auth/users"
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuickAction("profile")}
+            className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
           >
             <span className="flex items-center gap-3 font-semibold text-white">
               <FaUserCog className="text-cyan-300" />
@@ -398,10 +457,11 @@ const Overview = ({ onNavigate }) => {
             <span className="mt-2 block text-xs text-white/45">
               Manage the administrator account
             </span>
-          </a>
-          <Link
-            to="/"
-            className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuickAction("portfolio")}
+            className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.08]"
           >
             <span className="flex items-center gap-3 font-semibold text-white">
               <FaEye className="text-cyan-300" />
@@ -410,7 +470,7 @@ const Overview = ({ onNavigate }) => {
             <span className="mt-2 block text-xs text-white/45">
               Open the live portfolio page
             </span>
-          </Link>
+          </button>
         </div>
         <p className="mt-3 text-xs text-white/35">
           Project content is currently maintained in the portfolio source; no
