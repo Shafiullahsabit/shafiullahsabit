@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Overview from "./Overview";
 import ContactMessages from "./ContactMessages";
 import Analytics from "./Analytics";
+import Settings from "./Settings";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { supabase } from "../../lib/supabase";
@@ -11,6 +12,12 @@ import ConfirmDialog from "./ConfirmDialog";
 import "./dashboard-theme.css";
 
 const THEME_STORAGE_KEY = "portfolio-dashboard-theme";
+const DEFAULT_PROFILE = {
+  display_name: "Shafiullah Sabit",
+  accent_color: "#22d3ee",
+  avatar_path: null,
+  avatar_url: null,
+};
 
 const Dashboard = () => {
   const [theme, setTheme] = useState(() => {
@@ -27,15 +34,76 @@ const Dashboard = () => {
     window.matchMedia("(min-width: 1024px)").matches,
   );
   const [activeSection, setActiveSection] = useState("overview");
+  const [adminProfile, setAdminProfile] = useState(DEFAULT_PROFILE);
+  const [profileStatus, setProfileStatus] = useState("loading");
+  const [profileError, setProfileError] = useState("");
+  const [adminUser, setAdminUser] = useState({ id: "", email: "" });
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
-  const activeTitle =
-    activeSection === "contacts"
-      ? "Contact messages"
-      : activeSection === "analytics"
-        ? "Analytics"
-        : "Overview";
+  const sectionTitles = {
+    overview: "Overview",
+    contacts: "Contact messages",
+    analytics: "Analytics",
+    settings: "Settings",
+  };
+  const activeTitle = sectionTitles[activeSection] || "Overview";
+
+  const loadAdminProfile = useCallback(async () => {
+    if (!supabase) {
+      setProfileError("Supabase is not configured.");
+      setProfileStatus("error");
+      return;
+    }
+
+    setProfileStatus("loading");
+    setProfileError("");
+    try {
+      const { data: userResult, error: userError } =
+        await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!userResult.user) throw new Error("Sign in again to manage settings.");
+
+      setAdminUser({
+        id: userResult.user.id,
+        email: userResult.user.email || "",
+      });
+
+      const { data, error: profileQueryError } = await supabase
+        .from("admin_profiles")
+        .select("display_name, accent_color, avatar_path")
+        .eq("user_id", userResult.user.id)
+        .maybeSingle();
+      if (profileQueryError) throw profileQueryError;
+
+      let avatarUrl = null;
+      if (data?.avatar_path) {
+        const { data: signedUrlData, error: signedUrlError } =
+          await supabase.storage
+            .from("admin-avatars")
+            .createSignedUrl(data.avatar_path, 60 * 60);
+        if (signedUrlError) throw signedUrlError;
+        avatarUrl = signedUrlData.signedUrl;
+      }
+
+      setAdminProfile({
+        ...DEFAULT_PROFILE,
+        ...data,
+        avatar_url: avatarUrl,
+      });
+      setProfileStatus("ready");
+    } catch (error) {
+      console.error("Unable to load admin profile settings:", error);
+      setProfileError(
+        error.message || "Unable to load administrator profile settings.",
+      );
+      setProfileStatus("error");
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAdminProfile();
+  }, [loadAdminProfile]);
 
   const toggleTheme = () => {
     setTheme((currentTheme) => {
@@ -107,6 +175,7 @@ const Dashboard = () => {
         setSidebarOpen={setSidebarOpen}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
+        profile={adminProfile}
         onNavigate={() => {
           if (window.matchMedia("(max-width: 1023px)").matches) {
             setSidebarOpen(false);
@@ -131,6 +200,22 @@ const Dashboard = () => {
         {activeSection === "contacts" && <ContactMessages />}
         {activeSection === "analytics" && (
           <Analytics onNavigate={setActiveSection} />
+        )}
+        {activeSection === "settings" && (
+          <Settings
+            profile={adminProfile}
+            profileStatus={profileStatus}
+            profileError={profileError}
+            userId={adminUser.id}
+            userEmail={adminUser.email}
+            onRetry={loadAdminProfile}
+            onProfileSaved={(profile) => {
+              setAdminProfile(profile);
+              setProfileStatus("ready");
+            }}
+            theme={theme}
+            onThemeToggle={toggleTheme}
+          />
         )}
       </main>
     </div>

@@ -6,6 +6,7 @@ import {
   FaChartPie,
   FaChartLine,
   FaComments,
+  FaCog,
   FaUserShield,
   FaSignOutAlt,
 } from "react-icons/fa";
@@ -16,6 +17,7 @@ const Sidebar = ({
   setSidebarOpen,
   activeSection,
   setActiveSection,
+  profile,
   onNavigate,
   handleLogout,
 }) => {
@@ -23,6 +25,7 @@ const Sidebar = ({
     { id: "overview", label: "Overview", icon: <FaChartPie /> },
     { id: "analytics", label: "Analytics", icon: <FaChartLine /> },
     { id: "contacts", label: "Contact messages", icon: <FaComments /> },
+    { id: "settings", label: "Settings", icon: <FaCog /> },
   ];
 
   return (
@@ -116,17 +119,28 @@ const Sidebar = ({
 
       <div className="relative border-t border-white/10 pt-3">
         <div
-          title={!sidebarOpen ? "Shafiullah Sabit · Administrator" : undefined}
+          title={!sidebarOpen ? `${profile.display_name} - Administrator` : undefined}
           className={`mb-2 flex min-h-12 items-center gap-2.5 rounded-xl border border-white/[0.08] bg-gradient-to-br from-white/[0.07] to-white/[0.02] ${
             sidebarOpen ? "px-2.5 py-2" : "justify-center p-1"
           }`}
         >
-          <span className="dashboard-profile-avatar flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-100/20 bg-cyan-300/10 text-sm text-cyan-200 transition-transform duration-300 hover:scale-110">
-            <FaUserShield aria-hidden="true" />
+          <span
+            className="dashboard-profile-avatar flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-cyan-300/10 text-sm transition-transform duration-300 hover:scale-110"
+            style={{
+              borderColor: `${profile.accent_color}80`,
+              color: profile.accent_color,
+              backgroundColor: `${profile.accent_color}20`,
+            }}
+          >
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <FaUserShield aria-hidden="true" />
+            )}
           </span>
           <span className={`min-w-0 ${sidebarOpen ? "block" : "lg:hidden"}`}>
             <span className="block truncate text-[11px] font-semibold text-white">
-              Shafiullah Sabit
+              {profile.display_name}
             </span>
             <span className="mt-0.5 flex items-center gap-1.5 text-[9px] text-emerald-200/80">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />

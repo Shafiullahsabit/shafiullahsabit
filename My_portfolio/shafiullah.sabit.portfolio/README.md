@@ -16,12 +16,16 @@ inbox.
    API schema cache. If the form or dashboard reports that
    `public.contact_messages` is missing, run this SQL against the same Supabase
    project configured in the environment variables, then retry.
-4. In Supabase **Authentication → Users**, create an administrator using the
+4. Run `supabase/admin_profile_settings.sql` in the same SQL Editor after
+   `contact_messages.sql`. It creates the private administrator profile table
+   and private avatar bucket with administrator-only access policies. This is
+   required for profile settings and image uploads in the dashboard.
+5. In Supabase **Authentication → Users**, create an administrator using the
    email and password you want to use at `/admin`. If you do not know the
    existing administrator credentials, create a new user and use the new
    credentials; the app does not store or display passwords. Disable public
    sign-ups.
-5. Find the new user's UUID in **Authentication → Users**, then allowlist it
+6. Find the new user's UUID in **Authentication → Users**, then allowlist it
    in the SQL Editor:
 
    ```sql
@@ -32,10 +36,10 @@ inbox.
 
    The account must be allowlisted for dashboard access and access to stored
    messages. Never place a service-role key in this project.
-6. Start the frontend with `npm run dev`. During local development the form
+7. Start the frontend with `npm run dev`. During local development the form
    submits directly using the publishable key and is protected by database
    RLS. The deployed Vercel form uses the `/api/contact` server endpoint.
-7. Vercel Web Analytics is used to track public portfolio page views. Enable
+8. Vercel Web Analytics is used to track public portfolio page views. Enable
    it for the Vercel project and include the `<Analytics />` component from
    `@vercel/analytics/react` in the public app. View reports in the project's
    Analytics tab in Vercel. The admin dashboard's 30-day chart also reads
