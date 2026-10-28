@@ -1,8 +1,14 @@
 import React from "react";
-
 import { FaBars, FaMoon, FaSun } from "react-icons/fa";
+import DashboardNotifications from "./DashboardNotifications";
 
-const Header = ({ title, onMenuToggle, theme, onThemeToggle }) => {
+const Header = ({
+  title,
+  onMenuToggle,
+  theme,
+  onThemeToggle,
+  onNavigate,
+}) => {
   const isLightTheme = theme === "light";
 
   return (
@@ -33,6 +39,7 @@ const Header = ({ title, onMenuToggle, theme, onThemeToggle }) => {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <DashboardNotifications onNavigate={onNavigate} />
         <div className="hidden items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/5 px-3 py-1.5 sm:flex">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
           <span className="text-xs font-medium text-emerald-200/80">

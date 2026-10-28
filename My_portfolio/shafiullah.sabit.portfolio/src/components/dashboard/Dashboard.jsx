@@ -132,6 +132,13 @@ const Dashboard = () => {
     }
   };
 
+  const handleNotificationNavigate = (section) => {
+    setActiveSection(section);
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <div
       className="dashboard-shell relative min-h-screen bg-black text-white"
@@ -192,6 +199,7 @@ const Dashboard = () => {
           onMenuToggle={() => setSidebarOpen((isOpen) => !isOpen)}
           theme={theme}
           onThemeToggle={toggleTheme}
+          onNavigate={handleNotificationNavigate}
         />
 
         {activeSection === "overview" && (
