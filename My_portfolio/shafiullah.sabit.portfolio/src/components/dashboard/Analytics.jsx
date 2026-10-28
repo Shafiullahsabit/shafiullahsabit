@@ -11,6 +11,7 @@ import { getContactMessageError } from "../../lib/contactMessageErrors";
 import { supabase } from "../../lib/supabase";
 import StatCard from "./StatCard";
 import DashboardLineChart from "./DashboardLineChart";
+import InterestLineChart from "./InterestLineChart";
 
 const numberFormatter = new Intl.NumberFormat();
 const rangeOptions = [7, 30];
@@ -249,11 +250,6 @@ const Analytics = ({ onNavigate }) => {
     (total, point) => total + point.value,
     0,
   );
-  const interestTotal = messages.types.reduce(
-    (total, type) => total + type.count,
-    0,
-  );
-
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -388,52 +384,9 @@ const Analytics = ({ onNavigate }) => {
             No project interests to show for this period.
           </p>
         ) : (
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {messages.types.map((type, index) => {
-              const share =
-                interestTotal > 0
-                  ? Math.round((type.count / interestTotal) * 100)
-                  : 0;
-              return (
-                <li
-                  key={type.label}
-                  className="min-w-0 rounded-xl border border-white/[0.08] bg-black/10 p-4"
-                >
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-300/10 text-xs font-semibold text-violet-300">
-                        {index + 1}
-                      </span>
-                      <span className="truncate text-sm font-medium text-white/80">
-                        {type.label}
-                      </span>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-sm font-semibold tabular-nums text-white">
-                        {numberFormatter.format(type.count)}
-                      </p>
-                      <p className="text-[11px] tabular-nums text-white/45">
-                        {share}% of requests
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className="h-2 overflow-hidden rounded-full bg-white/10"
-                    role="progressbar"
-                    aria-label={`${type.label} share of project interests`}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-valuenow={share}
-                  >
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-300 transition-[width] duration-500"
-                      style={{ width: `${share}%` }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="mt-5">
+            <InterestLineChart points={messages.types} />
+          </div>
         )}
         <button
           type="button"
