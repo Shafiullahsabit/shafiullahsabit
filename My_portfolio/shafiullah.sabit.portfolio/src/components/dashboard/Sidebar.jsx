@@ -27,7 +27,7 @@ const Sidebar = ({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col overflow-hidden border-r border-cyan-300/10 bg-[#070a10]/95 p-3 shadow-[24px_0_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl transition-[width,transform] duration-300 sm:p-4 lg:w-[var(--dashboard-sidebar-width)] ${
+      className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col overflow-hidden border-r border-cyan-300/10 bg-[#070a10]/95 p-3 shadow-[12px_0_32px_rgba(0,0,0,0.28)] backdrop-blur-2xl transition-[width,transform] duration-300 sm:p-4 lg:w-[var(--dashboard-sidebar-width)] ${
         sidebarOpen
           ? "translate-x-0"
           : "-translate-x-full lg:translate-x-0"
@@ -121,7 +121,7 @@ const Sidebar = ({
             sidebarOpen ? "px-2.5 py-2" : "justify-center p-1"
           }`}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyan-100/20 bg-cyan-300/10 text-sm text-cyan-200">
+          <span className="dashboard-profile-avatar flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-100/20 bg-cyan-300/10 text-sm text-cyan-200 transition-transform duration-300 hover:scale-110">
             <FaUserShield aria-hidden="true" />
           </span>
           <span className={`min-w-0 ${sidebarOpen ? "block" : "lg:hidden"}`}>

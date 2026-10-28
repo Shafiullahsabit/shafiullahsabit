@@ -16,10 +16,17 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
   day: "numeric",
 });
+const detailDateFormatter = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 const rangeOptions = [7, 30];
 
 const getDateKey = (date) => date.toISOString().slice(0, 10);
 const formatDate = (date) => dateFormatter.format(new Date(`${date}T00:00:00`));
+const formatDetailDate = (date) =>
+  detailDateFormatter.format(new Date(`${date}T00:00:00`));
 
 const createDailySeries = (days, startDate, rows, valueForRow) => {
   const totalsByDate = new Map();
@@ -44,6 +51,7 @@ const TrendChart = ({
   emptyMessage,
   isLoading,
 }) => {
+  const [selectedDate, setSelectedDate] = useState(null);
   const width = 720;
   const height = 220;
   const padding = 12;
@@ -61,6 +69,8 @@ const TrendChart = ({
     ? `0,${height} ${linePoints} ${width},${height}`
     : "";
   const labelIndexes = [...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])];
+  const selectedPoint =
+    points.find((point) => point.date === selectedDate) ?? points.at(-1);
 
   return (
     <section className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_0_35px_rgba(0,255,255,0.04)] backdrop-blur-xl sm:p-6">
@@ -87,11 +97,25 @@ const TrendChart = ({
         </p>
       ) : (
         <div className="mt-5">
+          {selectedPoint && (
+            <div
+              className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3"
+              aria-live="polite"
+            >
+              <span className="text-sm text-white/60">
+                {formatDetailDate(selectedPoint.date)}
+              </span>
+              <span className="text-sm font-semibold text-cyan-200">
+                {numberFormatter.format(selectedPoint.value)}{" "}
+                {title === "Page views" ? "page views" : "messages"}
+              </span>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <svg
               viewBox={`0 0 ${width} ${height}`}
-              role="img"
-              aria-label={`${title} trend`}
+              role="group"
+              aria-label={`${title} trend. Select a point to inspect its date and value.`}
               className="h-56 min-w-[460px] w-full overflow-visible"
             >
               <defs>
@@ -133,17 +157,45 @@ const TrendChart = ({
                 strokeLinejoin="round"
               />
               {chartPoints.map((point) => (
-                <circle
+                <g
                   key={point.date}
-                  cx={point.x}
-                  cy={point.y}
-                  r="3"
-                  fill={color}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${formatDetailDate(point.date)}: ${numberFormatter.format(point.value)} ${title === "Page views" ? "page views" : "messages"}`}
+                  className="dashboard-chart-point cursor-pointer outline-none"
+                  onClick={() => setSelectedDate(point.date)}
+                  onFocus={() => setSelectedDate(point.date)}
+                  onMouseEnter={() => setSelectedDate(point.date)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedDate(point.date);
+                    }
+                  }}
                 >
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r="12"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r="4"
+                    fill={color}
+                    className={`dashboard-chart-point-marker ${
+                      selectedPoint?.date === point.date
+                        ? "dashboard-chart-point-selected"
+                        : ""
+                    }`}
+                  />
                   <title>
-                    {point.date}: {numberFormatter.format(point.value)}
+                    {formatDetailDate(point.date)}:{" "}
+                    {numberFormatter.format(point.value)}{" "}
+                    {title === "Page views" ? "page views" : "messages"}
                   </title>
-                </circle>
+                </g>
               ))}
             </svg>
           </div>

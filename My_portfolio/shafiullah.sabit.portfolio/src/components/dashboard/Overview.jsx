@@ -26,6 +26,7 @@ const formatDate = (value) => {
 };
 
 const Overview = ({ onNavigate }) => {
+  const [selectedPointDate, setSelectedPointDate] = useState(null);
   const [messageStats, setMessageStats] = useState({
     total: 0,
     unread: 0,
@@ -157,6 +158,9 @@ const Overview = ({ onNavigate }) => {
       (point.pageViews / maxPageViews) * (chartHeight - chartPadding * 2);
     return { ...point, x, y };
   });
+  const selectedChartPoint =
+    chartPoints.find((point) => point.date === selectedPointDate) ??
+    chartPoints.at(-1);
   const linePoints = chartPoints.map(({ x, y }) => `${x},${y}`).join(" ");
   const areaPoints = chartPoints.length
     ? `0,${chartHeight} ${linePoints} ${chartWidth},${chartHeight}`
@@ -290,11 +294,25 @@ const Overview = ({ onNavigate }) => {
             </p>
           ) : (
             <div className="mt-6">
+              {selectedChartPoint && (
+                <div
+                  className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3"
+                  aria-live="polite"
+                >
+                  <span className="text-sm text-white/60">
+                    {formatDate(selectedChartPoint.date)}
+                  </span>
+                  <span className="text-sm font-semibold text-cyan-200">
+                    {numberFormatter.format(selectedChartPoint.pageViews)} page
+                    views
+                  </span>
+                </div>
+              )}
               <div className="overflow-x-auto">
                 <svg
                   viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                  role="img"
-                  aria-label="Daily page views over the last 30 days"
+                  role="group"
+                  aria-label="Daily page views over the last 30 days. Select a point to inspect its date and value."
                   className="h-56 min-w-[520px] w-full overflow-visible"
                 >
                   {[0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -347,18 +365,45 @@ const Overview = ({ onNavigate }) => {
                     strokeLinejoin="round"
                   />
                   {chartPoints.map((point) => (
-                    <circle
+                    <g
                       key={point.date}
-                      cx={point.x}
-                      cy={point.y}
-                      r="3"
-                      fill="#22d3ee"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${formatDate(point.date)}: ${numberFormatter.format(point.pageViews)} page views`}
+                      className="dashboard-chart-point cursor-pointer outline-none"
+                      onClick={() => setSelectedPointDate(point.date)}
+                      onFocus={() => setSelectedPointDate(point.date)}
+                      onMouseEnter={() => setSelectedPointDate(point.date)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setSelectedPointDate(point.date);
+                        }
+                      }}
                     >
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r="12"
+                        fill="transparent"
+                        className="dashboard-chart-point-target"
+                      />
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r="4"
+                        fill="#22d3ee"
+                        className={`dashboard-chart-point-marker ${
+                          selectedChartPoint?.date === point.date
+                            ? "dashboard-chart-point-selected"
+                            : ""
+                        }`}
+                      />
                       <title>
-                        {point.date}: {numberFormatter.format(point.pageViews)}{" "}
-                        views
+                        {formatDate(point.date)}:{" "}
+                        {numberFormatter.format(point.pageViews)} page views
                       </title>
-                    </circle>
+                    </g>
                   ))}
                 </svg>
               </div>

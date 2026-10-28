@@ -85,3 +85,40 @@
 .dashboard-shell[data-theme="light"] svg line {
   stroke: #cbd5e1;
 }
+
+.dashboard-chart-point:focus-visible .dashboard-chart-point-marker {
+  stroke: currentColor;
+  stroke-width: 3px;
+}
+
+.dashboard-chart-point-marker {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 120ms ease-out;
+}
+
+.dashboard-chart-point-selected {
+  transform: scale(1.5);
+  stroke: rgb(34 211 238 / 30%);
+  stroke-width: 7px;
+}
+
+.dashboard-profile-avatar {
+  animation: dashboard-profile-glow 3s ease-in-out infinite;
+}
+
+@keyframes dashboard-profile-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(34 211 238 / 0%);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(34 211 238 / 12%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-profile-avatar {
+    animation: none;
+  }
+}
